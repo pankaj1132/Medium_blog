@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 
 import { userRoutes } from './routes/user';
 import { blogRoutes } from './routes/blog';
@@ -10,6 +11,16 @@ const app = new Hono<{
     JWT_SECRET: string
   }
 }>();
+
+// Enable CORS for all routes
+app.use('*', cors({
+  origin: '*', 
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], 
+  allowHeaders: ['Authorization', 'Content-Type'], 
+  exposeHeaders: ['Authorization'], 
+  maxAge: 3600, 
+  credentials: true, 
+  }));
 
 
 app.route('/api/v1/user', userRoutes);

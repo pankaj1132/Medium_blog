@@ -27,13 +27,28 @@ blogRoutes.use("/*", async (c, next) => {
   }
 });
 blogRoutes.get("/bulk", async (c) => {
-  const body = c.req.json();
+
   const prisma = new PrismaClient({
     datasourceUrl: c.env?.DATABASE_URL,
   }).$extends(withAccelerate());
   try {
-    const blogs = await prisma.post.findMany();
-    return c.json(blogs);
+    const blogs = await prisma.post.findMany(
+      {
+        select: {
+          id: true,
+          title: true,
+          content: true,
+          author:{
+            select:{
+
+            name:true,
+          }
+       
+        },
+      }
+    }
+    );
+    return c.json({blogs});
   } catch (e) {
     c.status(404);
     return c.json({ error: "blogs not found" });
@@ -51,6 +66,18 @@ blogRoutes.get("/:id", async (c) => {
       where: {
         id: id,
       },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        author:{
+          select:{
+
+          name:true,
+        }
+     
+      },
+    }
     });
     return c.json(blog);
   } catch (e) {
